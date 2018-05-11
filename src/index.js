@@ -153,33 +153,41 @@ function deleteTextNodesRecursive(where) {
      texts: 3
    }
  */
-function collectDOMStat(root) {
-  var tags = {}, 
-      texts = 0, 
-      classes = {},
-      dom = root.childNodes;
-
-  for(let i=0;i<dom.length;i++) {
-    if(dom[i].nodeType === 3) {
-      ++texts
-    } else {
-      tags[dom[i].tagName] = tags[dom[i].tagName] ? ++tags[dom[i].tagName] : 1;
-      let classList = dom[i].classList;
-      if(classList !== undefined && classList.length > 0) {
-        for(let className of classList) {
-          classes[className] = classes[className] ? ++classes[className] : 1;
+function collectDOMStat(root, obj) {
+      
+       var obj = obj || {};
+           obj.tags = obj.tags || {}, 
+           obj.texts = obj.texts || 0, 
+           obj.classes = obj.classes || {},
+           dom = [...root.childNodes];
+          
+      // выход с рекурсии 
+       if (dom.length < 1) {
+        return obj;
         }
-      }
+
+      for (let element of dom) {
+            if (element.nodeType === 3) {
+                obj.texts++;
+            } else {
+                let classes = element.classList;
+                
+                obj.tags[element.tagName] = obj.tags[element.tagName] ? ++obj.tags[element.tagName] : 1;
+
+                if (classes !== undefined && classes.length > 0) {
+                    for (let className of classes) {
+                        obj.classes[className] = obj.classes[className] ? ++obj.classes[className] : 1;
+                    }
+                }
+                
+                obj = collectDOMStat(element, obj);
+            }
+            
+        }
+
+        return obj;
     }
 
-  }
-  return {
-    tags: tags || {}, 
-    classes: classes || {},
-    texts: texts || {}
-  }
-
-}
 
 /*
  Задание 8 *:
